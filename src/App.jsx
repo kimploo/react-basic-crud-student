@@ -1,32 +1,43 @@
 import s from "./App.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import fruitsData from "../db.json";
 import ItemHeader from "./components/ItemHeader";
 import ItemInput from "./components/ItemInput";
 import SumFooter from "./components/SumFooter";
+import getFruits from "./features/fruits/api/getFruits.mjs";
+import deleteOneFruit from "./features/fruits/api/deleteOneFruit.mjs";
+import editOneFruit from "./features/fruits/api/editOneFruit.mjs";
 
 export default function App() {
-  const [fruits, setFruits] = useState(fruitsData.map(f => {
-    f.quantity = 0;
-    return f
-  }));
-  console.log('fruits', fruits)
-  
-  const handleNewFruit = () => {
+  const [fruits, setFruits] = useState([]);
+
+  useEffect(() => {
+    getFruits().then(res => setFruits(res.map(f => ({...f, quantity: 0}))))
+  }, [])
+
+  const handleNewFruit = (e) => {
+    e.preventDefault()
     // TODO: 새로운 과일 추가 기능
     // TODO: 에러 핸들링 나중에 구현하기
   }
   
-  const handleDelete = (fruitId) => setFruits(fruits.filter(fruit => (fruit.id !== fruitId)))
+  // 클라이언트 <-> 서버
+  // 데이터 <-> 데이터 => 서버에서 데이터를 관리합니다.
+  const handleDelete = (fruitId) =>{
+    deleteOneFruit(fruitId)
+    .then(() => {
+      // DELETE 요청이 성공했을 경우
+      // fruits.filter... 삭제하고자 하는 아이디와 일치하는 경우에 삭제
+      getFruits().then(res => setFruits(res.map((f, i) => ({...f, quantity: fruits[i].quantity}))))
+    })
+  }
   
   const handleEdit = (newFruit) => {
-    const idx = fruits.findIndex((f) => f.id === newFruit.id);
-    if (idx !== -1) {
-      const copy = fruits.slice();
-      copy.splice(idx, 1, newFruit);
-      setFruits(copy);
-    }
+    const { id, name, price, quantity } = newFruit
+    editOneFruit(id, newFruit)
+    .then(() => {
+      getFruits().then(res => setFruits(res.map((f, i) => ({...f, quantity: fruits[i].quantity}))))
+    })
   }; 
 
   return (
