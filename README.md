@@ -11,3 +11,14 @@
   - [ ] Update name/price
   - [x] Update Quantity
   - [x] Delete
+
+- Redux 관련 라이브러리 설치
+
+```bash
+npm install redux redux-react @reduxjs/toolkit
+```
+
+- [x] Redux 기본 세팅
+- Redux Get
+- Update Delete
+- 시간 남으면 Create 만들기
